@@ -37,8 +37,6 @@ for root, dirs, files in os.walk(folder):
 			second = match.groups()[5]
 			suffix = match.groups()[6].strip().strip('-_')
 			rename += '_'+year+month+day+'_'+hour+minute+second
-			if suffix:
-				rename += '_'+suffix
 		elif match2:
 			times = []
 			if os.path.splitext(file)[1] in exif_images:
@@ -58,7 +56,13 @@ for root, dirs, files in os.walk(folder):
 				exit()
 			rename += '_'+ymdhms
 		if match or match2:
-			rename += os.path.splitext(file)[1].lower()
-			print('\tRENAMED', rename, end='')
-			shutil.move(path, os.path.join(folder, rename))
-			print()
+			ext = os.path.splitext(file)[1].lower()
+			new_path = os.path.join(folder, rename+ext)
+			if os.path.exists(new_path):
+				suffix = 1
+				while os.path.exists(new_path):
+					new_path = os.path.join(folder, rename+'_'+str(suffix)+ext)
+					suffix += 1
+			print('\tRENAMED', rename+ext, end='')
+			shutil.move(path, new_path)
+		print()
