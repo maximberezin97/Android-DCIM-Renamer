@@ -9,7 +9,8 @@ from PIL.ExifTags import TAGS
 videos = ['.MP4', '.MOV']
 images = ['.JPG', '.JPEG', '.PNG']
 exif_images = ['.JPG', '.JPEG']
-re_ymdhms = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d) (\d\d)\.(\d\d)\.(\d\d)(.*)?\.")
+re1 = re.compile(r"(\d\d\d\d)-(\d\d)-(\d\d) (\d\d)\.(\d\d)\.(\d\d)(.*)?\.")
+re2 = re.compile(r"(\d{8})_(\d{9})")
 
 folder = sys.argv[1] if len(sys.argv) > 1 else ""
 for root, dirs, files in os.walk(folder):
@@ -28,15 +29,22 @@ for root, dirs, files in os.walk(folder):
 			prefix = "PANO"
 		rename = prefix
 
-		ymdhms = re.match(re_ymdhms, file)
-		if ymdhms:
-			year = ymdhms.groups()[0]
-			month = ymdhms.groups()[1]
-			day = ymdhms.groups()[2]
-			hour = ymdhms.groups()[3]
-			minute = ymdhms.groups()[4]
-			second = ymdhms.groups()[5]
+		re1_match = re.match(re1, file)
+		if re1_match:
+			year = re1_match.groups()[0]
+			month = re1_match.groups()[1]
+			day = re1_match.groups()[2]
+			hour = re1_match.groups()[3]
+			minute = re1_match.groups()[4]
+			second = re1_match.groups()[5]
 			time = year+month+day+hour+minute+second
+			times.append(datetime.datetime.strptime(time, "%Y%m%d%H%M%S"))
+
+		re2_match = re.match(re2, file)
+		if re2_match:
+			ymd = re2_match.groups()[0]
+			hms = re2_match.groups()[1][:5]
+			time = ymd+hms
 			times.append(datetime.datetime.strptime(time, "%Y%m%d%H%M%S"))
 
 		if os.path.splitext(file)[1] in exif_images:
